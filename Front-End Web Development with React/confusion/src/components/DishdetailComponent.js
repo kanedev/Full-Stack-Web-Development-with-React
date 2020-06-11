@@ -9,6 +9,15 @@ class DishDetail extends Component {
         this.state = {  };
     }
 
+
+    componentDidMount() {
+      console.log('DishDetail component  componentDidMount invoked ')
+    }
+
+    componentDidUpdate() {
+        console.log('DishDetail component  componentDidUpdate invoked ')
+      }
+
     renderDish(dish) {
         if (dish != null)
             return(
