@@ -1,38 +1,48 @@
 import React from 'react';
 import { Breadcrumb, BreadcrumbItem, Card, CardBody, CardHeader, Media } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { Loading } from './LoadingComponent';
+import { baseUrl } from '../shared/baseUrl';
+import { Fade, Stagger } from 'react-animation-components';
 
 function RenderLeader({leader}){
 return(
     <div className="container">
-    <Media>
-    <Media left top className="mr-5 ">
-      <Media object src={leader.image} alt={leader.abbr} />
-    </Media>
-    <Media body className="mb-3 ml-auto mr-auto">
-      <Media heading>
-        {leader.name}
-        </Media>
-      <Media className="mb-3 ml-auto mr-auto">
-        {leader.designation}
-        </Media>
-   
-      <Media className="mb-3 ml-auto mr-auto">
-        {leader.description}
-        </Media>
-    </Media>
-    </Media>
+            <Fade in>
+            <Media list className="list-unstyled">
+                <Media tag="li" key={leader.id} className="col-12 mt-5 list-unstyled" >
+                <Media left top >
+                        <Media  object src={baseUrl + leader.image} alt={leader.name} />
+                  </Media>   
+                    <Media body className="ml-5">
+                        <Media heading>{leader.name}</Media>
+                        <p>{leader.designation}</p>
+                        <p>{leader.description}</p>
+                    </Media>
+                </Media>
+                </Media>
+            </Fade>
+     
     </div>
 );
 }
 function About(props) {
-    const leaders = props.leaders.map((leader) => {
-        console.log(leader);
+    let leaders;
+    if(props.leaderloading){
+         leaders=<Loading/>;
+    }else if(props.leaderErrMess){
+         leaders= <h4>{props.leaderErrMess}</h4>
+    }else{
+     leaders = <Stagger in>{props.leaders.map(leader => {
         return (
-           <RenderLeader leader={leader}/>
-        
+            <Fade in>
+            <li>
+            <RenderLeader leader={leader}/>
+            </li>
+            </Fade>
         );
-    });
+    })}</Stagger>
+    }
 
     return(
         <div className="container">
