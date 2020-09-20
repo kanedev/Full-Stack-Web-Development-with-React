@@ -48,7 +48,7 @@ export default class Reservation extends Component {
                     </Picker>
                 </View>
                 <View style={styles.formRow}>
-                    <Text style={styles.formLabel}>Smoking/Non-Smoking?</Text>
+                    <Text style={styles.formLabel}>Smoking ?</Text>
                     <Switch
                         style={styles.formItem}
                         value={this.state.smoking}
