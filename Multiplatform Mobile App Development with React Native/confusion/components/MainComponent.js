@@ -363,6 +363,10 @@ class Main extends Component {
       this.props.fetchLeaders();
   }
   render() {
+
+ // Disable the Yellow Box in React Native : helpful and annoying ...
+    console.disableYellowBox = true;
+    
     return(
       <NavigationContainer>
           <MainNavigatorScreen/>           

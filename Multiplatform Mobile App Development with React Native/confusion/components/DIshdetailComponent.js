@@ -5,6 +5,8 @@ import { FlatList, ScrollView, TextInput } from 'react-native-gesture-handler'
 import { connect } from 'react-redux'
 import { baseUrl } from '../shared/baseUrl'
 import { postFavorite, postComment } from '../redux/ActionCreators'
+import * as Animatable from 'react-native-animatable';
+
 
 const mapStateToProps = (state) => ({
     dishes: state.dishes,
@@ -27,22 +29,25 @@ function RenderComments({comments }){
         )
     }
     return(
-        <Card title='Comments'>
-            <FlatList
+        <Animatable.View animation="fadeInUp" duration={2000} delay={1000}>        
+        <Card title='Comments' >
+            <FlatList 
                 data={comments}
                 renderItem={renderCommentItem}
                 keyExtractor={item => item.id.toString()}
-            />
+                />
         </Card>
+        </Animatable.View>
     )
 }
 
 function RenderDish({ dish, favorite , onPress, toggleModal}) {
     return dish!=null? 
         (
-            <Card 
-                featuredTitle={dish.name}
-                image={{ uri: baseUrl + dish.image }}>
+            <Animatable.View animation="fadeInDown" duration={2000} delay={1000}>
+            <Card
+            featuredTitle={dish.name}
+            image={{uri: baseUrl + dish.image}}>
                 <Text style={{ padding: 10 }}>{dish.description}</Text>
                 <View style={styles.iconRow}>
                     <Icon
@@ -62,7 +67,8 @@ function RenderDish({ dish, favorite , onPress, toggleModal}) {
                         onPress={() => toggleModal()}
                     />
                 </View>
-            </Card>
+                </Card>
+            </Animatable.View>
         ):
         (<View></View>)
     
