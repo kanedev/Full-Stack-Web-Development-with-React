@@ -13,7 +13,7 @@ import Reservation from './ReservationComponent';
 import Favorites from './FavoriteComponent';
 import { connect } from 'react-redux';
 import { fetchDishes, fetchComments, fetchPromos, fetchLeaders } from '../redux/ActionCreators';
-
+import Login from './LoginComponent';
 
 const mapStateToProps = state => {
     return {
@@ -219,6 +219,39 @@ function ReservationNavigatorScreen() {
   )
 }
 
+const LoginNavigator = createStackNavigator();
+
+function LoginNavigatorScreen() {
+  return (
+    <LoginNavigator.Navigator
+          screenOptions={{
+              headerStyle: {
+                  backgroundColor: "#512DA8"
+              },
+              headerTintColor: "#fff",
+              headerTitleStyle: {
+                  color: "#fff"            
+              }
+          }}>
+          <LoginNavigator.Screen
+              name="About Us"
+              component={Login}
+              options={({navigation}) => ({
+                headerLeft: () => (
+                    <Icon
+                      name='menu'
+                      size={24}
+                      color='white'
+                      iconStyle={{marginLeft:10}}
+                      onPress={() => navigation.toggleDrawer()}>
+                    </Icon>
+                )
+              })}
+          />             
+      </LoginNavigator.Navigator>
+  )
+}
+
 
 const FavoritesNavigator = createStackNavigator();
 
@@ -346,6 +379,20 @@ function MainNavigatorScreen() {
                         name='heart'
                         type='font-awesome'
                         size={24}
+                        color={tintColor}>
+                    </Icon>
+                )
+            }}
+        />
+        <MainNavigator.Screen 
+            name='Login' 
+            component={LoginNavigatorScreen}
+            options={{
+                drawerIcon: ({tintColor}) => (
+                    <Icon
+                        name='sign-in'
+                        type='font-awesome'
+                        size={23}
                         color={tintColor}>
                     </Icon>
                 )
