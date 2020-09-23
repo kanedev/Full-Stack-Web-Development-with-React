@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
-import * as SecureStore from 'expo-secure-store'
 import { View, StyleSheet } from 'react-native'
 import { Input, CheckBox, Button, Icon, Image } from 'react-native-elements'
 //import { createBottomTabNavigator } from 'react-navigation-tabs'
 import { ScrollView } from 'react-native-gesture-handler'
 import { baseUrl } from '../shared/baseUrl'
 import { Permissions } from 'react-native-unimodules'
-import * as ImagePicker from 'expo-image-picker'
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
+import * as ImagePicker from 'expo-image-picker'
+import * as ImageManipulator from "expo-image-manipulator";
+import * as SecureStore from 'expo-secure-store';
 
 const tabNavigator = createBottomTabNavigator();
 
@@ -136,17 +136,38 @@ class RegisterTab extends Component {
         )
     }
     getImageFromCamera = async () => {
-        const cameraPermission = await Permissions.askAsync(Permissions.CAMERA)
-        if(cameraPermission.status === 'granted'){
-            let captureImage = await ImagePicker.launchCameraAsync({
+        const cameraPermission = await Permissions.askAsync(Permissions.CAMERA);
+        const cameraRollPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+
+        if (cameraPermission.status === 'granted' && cameraRollPermission.status === 'granted') {
+            let capturedImage = await ImagePicker.launchCameraAsync({
                 allowsEditing: true,
-                aspect: [4,3]
-            })
-            if(!captureImage.cancelled){
-                this.setState({ imageUrl: captureImage.uri })
+                aspect: [4, 3],
+            });
+            if (!capturedImage.cancelled) {
+                console.log(capturedImage);
+               // this.setState({ imageUrl : capturedImage.uri });
+                this.processImage(capturedImage.uri);
             }
         }
+
     }
+
+    processImage = async (imageUri) => {
+        let processedImage = await ImageManipulator.manipulate(
+            imageUri, 
+            [
+                {resize: {width: 400}}
+            ],
+            {format: 'png'}
+        );
+        console.log(processedImage);
+        this.setState({ imageUrl : processedImage.uri });
+
+    }
+
+    
+
     handleRegister = () => {
         console.log(JSON.stringify(this.state))
         if(this.state.remember){
