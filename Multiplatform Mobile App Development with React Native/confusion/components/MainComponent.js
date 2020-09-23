@@ -234,7 +234,7 @@ function LoginNavigatorScreen() {
               }
           }}>
           <LoginNavigator.Screen
-              name="About Us"
+              name="Login / Register"
               component={Login}
               options={({navigation}) => ({
                 headerLeft: () => (

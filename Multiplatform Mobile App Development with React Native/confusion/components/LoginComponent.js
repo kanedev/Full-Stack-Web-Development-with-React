@@ -1,10 +1,19 @@
 import React, { Component } from 'react'
-import { View, Button, StyleSheet } from 'react-native'
-import { Input, CheckBox } from 'react-native-elements'
 import * as SecureStore from 'expo-secure-store'
+import { View, StyleSheet } from 'react-native'
+import { Input, CheckBox, Button, Icon, Image } from 'react-native-elements'
+//import { createBottomTabNavigator } from 'react-navigation-tabs'
+import { ScrollView } from 'react-native-gesture-handler'
+import { baseUrl } from '../shared/baseUrl'
+import { Permissions } from 'react-native-unimodules'
+import * as ImagePicker from 'expo-image-picker'
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 
- class Login extends Component {
+const tabNavigator = createBottomTabNavigator();
+
+class LoginTab extends Component {
     state = {
         username: '',
         password: '',
@@ -24,7 +33,15 @@ import * as SecureStore from 'expo-secure-store'
             })
     }
     static navigationOptions = {
-        title: 'Login'
+        title: 'Login',
+        tabBarIcon: ({ tintColor }) => (
+            <Icon 
+                name='sign-in'
+                type='font-awesome'
+                size={24}
+                color={tintColor}
+            />
+        )
     }
     handleLogin = () => {
         console.log(JSON.stringify(this.state))
@@ -60,16 +77,212 @@ import * as SecureStore from 'expo-secure-store'
                     onPress={() => this.setState({ remember: !this.state.remember })}
                     containerStyle={styles.formCheck}
                 />
-                <View style={styles.formBtn} >
-                    <Button 
-                        onPress={this.handleLogin}
-                        title='Login'
-                        color='#512da8'
-                    />
-                </View>    
+                
+                <Button 
+                    onPress={this.handleLogin}
+                    title='Login'
+                    icon={
+                        <Icon
+                            name='sign-in'
+                            type='font-awesome'
+                            size={24}
+                            color='white'
+                        /> 
+                    }
+                    buttonStyle={{ backgroundColor: '#512da8' }}
+                    containerStyle={{ margin: 40 }}
+                />
+            
+                <Button 
+                    onPress={()=> this.props.navigation.navigate('Register')}
+                    title='Register'
+                    type='clear'
+                    icon={
+                        <Icon
+                            name='user-plus'
+                            type='font-awesome'
+                            size={24}
+                            color='grey'
+                        /> 
+                    }
+                    titleStyle={{ color: 'blue', fontSize: 20 }}
+                    containerStyle={{ margin: 40 }}
+                />
+              
             </View>
         )
     }
+}
+
+class RegisterTab extends Component {
+    state = {
+        firstname: '',
+        lastname: '',
+        email: '',
+        username: '',
+        password: '',
+        imageUrl: baseUrl + 'images/logo.png',
+        remember: false
+    }
+    static navigationOptions = {
+        title: 'Register',
+        tabBarIcon: ({ tintColor }) => (
+            <Icon 
+                name='user-plus'
+                type='font-awesome'
+                size={24}
+                color={tintColor}
+            />
+        )
+    }
+    getImageFromCamera = async () => {
+        const cameraPermission = await Permissions.askAsync(Permissions.CAMERA)
+        if(cameraPermission.status === 'granted'){
+            let captureImage = await ImagePicker.launchCameraAsync({
+                allowsEditing: true,
+                aspect: [4,3]
+            })
+            if(!captureImage.cancelled){
+                this.setState({ imageUrl: captureImage.uri })
+            }
+        }
+    }
+    handleRegister = () => {
+        console.log(JSON.stringify(this.state))
+        if(this.state.remember){
+            SecureStore.setItemAsync('userinfo', JSON.stringify({ username: this.state.username, password: this.state.password }))
+                .catch(error => console.log('Could not save user'))
+        }
+    }
+    render() {
+        return (
+            <ScrollView>
+            <View style={styles.container} >
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={{ uri: this.state.imageUrl }}
+                        style={styles.image}
+                        containerStyle={{ paddingLeft: 10 }}
+                    />
+                    <Button 
+                        title='Camera' 
+                        onPress={this.getImageFromCamera}
+                        containerStyle={{ paddingTop: 10 }}
+                    />        
+                </View>
+
+                <Input 
+                    placeholder='First Name'
+                    leftIcon={{ type: 'font-awesome', name: 'user-o'}}
+                    onChangeText={firstname => this.setState({firstname:firstname })}
+                    value={this.state.firstname}
+                    containerStyle={styles.formInput}
+                />
+
+                <Input 
+                    placeholder='Last Name'
+                    leftIcon={{ type: 'font-awesome', name: 'user-o'}}
+                    onChangeText={lastname => this.setState({ lastname: lastname })}
+                    value={this.state.lastname}
+                    containerStyle={styles.formInput}
+                />
+
+                <Input 
+                    placeholder='Email'
+                    leftIcon={{ type: 'font-awesome', name: 'envelope-o'}}
+                    onChangeText={email => this.setState({ email: email })}
+                    value={this.state.email}
+                    containerStyle={styles.formInput}
+                />
+                <Input 
+                    placeholder='Username'
+                    leftIcon={{ type: 'font-awesome', name: 'user-o'}}
+                    onChangeText={username => this.setState({ username: username })}
+                    value={this.state.username}
+                    containerStyle={styles.formInput}
+                />
+                
+                <Input 
+                    placeholder='Password'
+                    leftIcon={{ type: 'font-awesome', name: 'key'}}
+                    onChangeText={password => this.setState({ password: password} )}
+                    value={this.state.password}
+                    containerStyle={styles.formInput}
+                />
+
+                <CheckBox 
+                    title='Remember Me'
+                    center
+                    checked={this.state.remember}
+                    onPress={() => this.setState({ remember: !this.state.remember })}
+                    containerStyle={styles.formCheck}
+                />
+               
+                <Button 
+                    onPress={this.handleRegister}
+                    title='Register'
+                    icon={
+                        <Icon
+                            name='sign-in'
+                            type='font-awesome'
+                            size={24}
+                            color='white'
+                        /> 
+                    }
+                    buttonStyle={{ backgroundColor: '#512da8' }}
+                    containerStyle={{ margin: 40 }}
+                />
+                  
+            </View>
+            </ScrollView>
+        )
+    }
+}
+
+function Login() {
+    return(
+        <NavigationContainer independent={true}>
+            <tabNavigator.Navigator
+                initialRouteName='Login'
+                tabBarOptions={{
+                    activeBackgroundColor: '#9575CD',
+                    inactiveBackgroundColor: '#D1C4E9',
+                    activeTintColor: '#ffffff',
+                    inactiveTintColor: 'gray'
+                }}>
+                <tabNavigator.Screen 
+                name='Login' 
+                component={LoginTab}
+                options={{
+                    title: 'Login',
+                    tabBarIcon:({ tintColor }) => (
+                        <Icon
+                          name='sign-in'
+                          type='font-awesome'            
+                          size={24}
+                          iconStyle={{ color: tintColor }}
+                        />
+                      )
+                }}
+                />
+                <tabNavigator.Screen 
+                    name='Register' 
+                    component={RegisterTab}
+                    options={{
+                        title: 'Register',
+                        tabBarIcon:({ tintColor }) => (
+                            <Icon
+                              name='user-plus'
+                              type='font-awesome'            
+                              size={24}
+                              iconStyle={{ color: tintColor }}
+                            />
+                          )
+                    }}
+                />
+            </tabNavigator.Navigator>
+        </NavigationContainer>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -77,18 +290,23 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         margin: 20
     },
+    imageContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        margin: 20,
+        justifyContent: 'center'
+    },
+    image: {
+        width: 80,
+        height: 60
+    },
     formInput: {
-        margin: 10
+        margin: 20
     },
     formCheck: {
-        margin: 10,
+        margin: 20,
         backgroundColor: null
-    },
-    formBtn: {
-        margin: 10
     }
 })
 
-
-
-export default Login;
+export default Login
