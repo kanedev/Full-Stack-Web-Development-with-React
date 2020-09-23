@@ -90,7 +90,7 @@ class LoginTab extends Component {
                         /> 
                     }
                     buttonStyle={{ backgroundColor: '#512da8' }}
-                    containerStyle={{ margin: 40 }}
+                    containerStyle={{ margin: 5 }}
                 />
             
                 <Button 
@@ -106,7 +106,7 @@ class LoginTab extends Component {
                         /> 
                     }
                     titleStyle={{ color: 'blue', fontSize: 20 }}
-                    containerStyle={{ margin: 40 }}
+                    containerStyle={{ margin: 5 }}
                 />
               
             </View>
@@ -154,7 +154,7 @@ class RegisterTab extends Component {
     }
 
     processImage = async (imageUri) => {
-        let processedImage = await ImageManipulator.manipulate(
+        let processedImage = await ImageManipulator.manipulateAsync(
             imageUri, 
             [
                 {resize: {width: 400}}
@@ -162,11 +162,25 @@ class RegisterTab extends Component {
             {format: 'png'}
         );
         console.log(processedImage);
-        this.setState({ imageUrl : processedImage.uri });
+        this.setState({imageUrl: processedImage.uri });
 
     }
 
-    
+    getImageFromGallery = async ()=>{
+        const cameraPermission = await Permissions.askAsync(Permissions.CAMERA);
+        const cameraRollPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+
+        if (cameraPermission.status === 'granted' && cameraRollPermission.status === 'granted') {
+            let capturedImage = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true,
+                aspect: [4, 3],
+            });
+            if (!capturedImage.cancelled) {
+                console.log(capturedImage);
+                this.processImage(capturedImage.uri);
+            }
+        }
+    } 
 
     handleRegister = () => {
         console.log(JSON.stringify(this.state))
@@ -189,7 +203,12 @@ class RegisterTab extends Component {
                         title='Camera' 
                         onPress={this.getImageFromCamera}
                         containerStyle={{ paddingTop: 10 }}
-                    />        
+                    /> 
+                                        <Button 
+                        title='Gallery' 
+                        onPress={this.getImageFromGallery}
+                        containerStyle={{ paddingTop: 10 }}
+                    />          
                 </View>
 
                 <Input 
@@ -251,7 +270,7 @@ class RegisterTab extends Component {
                         /> 
                     }
                     buttonStyle={{ backgroundColor: '#512da8' }}
-                    containerStyle={{ margin: 40 }}
+                    containerStyle={{ margin: 5 }}
                 />
                   
             </View>
@@ -309,12 +328,12 @@ function Login() {
 const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
-        margin: 20
+        margin: 5
     },
     imageContainer: {
         flex: 1,
         flexDirection: 'row',
-        margin: 20,
+        margin: 5,
         justifyContent: 'center'
     },
     image: {
@@ -322,10 +341,10 @@ const styles = StyleSheet.create({
         height: 60
     },
     formInput: {
-        margin: 20
+        margin: 5
     },
     formCheck: {
-        margin: 20,
+        margin: 5,
         backgroundColor: null
     }
 })
