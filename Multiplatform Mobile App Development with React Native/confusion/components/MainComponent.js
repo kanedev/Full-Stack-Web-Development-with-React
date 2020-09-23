@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, Text, View, Image, StyleSheet } from 'react-native';
+import { ScrollView, Text, View, Image, StyleSheet, ToastAndroid  } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator, DrawerItemList } from '@react-navigation/drawer';
@@ -14,6 +14,7 @@ import Favorites from './FavoriteComponent';
 import { connect } from 'react-redux';
 import { fetchDishes, fetchComments, fetchPromos, fetchLeaders } from '../redux/ActionCreators';
 import Login from './LoginComponent';
+import NetInfo from '@react-native-community/netinfo'
 
 const mapStateToProps = state => {
     return {
@@ -408,6 +409,32 @@ class Main extends Component {
       this.props.fetchComments();
       this.props.fetchPromos();
       this.props.fetchLeaders();
+
+      NetInfo.fetch()
+      .then(connectionInfo => {
+          ToastAndroid.show('Initial Network Connection: ' + connectionInfo.type, ToastAndroid.LONG)
+          NetInfo.addEventListener(this.handleConnectivityChange)
+      })
+}
+handleConnectivityChange = (connectionInfo) => {
+  switch (connectionInfo.type) {
+      case 'none':
+          ToastAndroid.show('You are now offline', ToastAndroid.LONG)
+          break
+      case 'wifi':
+          ToastAndroid.show('You are now connected to wifi', ToastAndroid.LONG)
+          break
+      case 'cellular':
+          ToastAndroid.show('You are now connected to cellular', ToastAndroid.LONG)
+          break
+      case 'unknown':
+          ToastAndroid.show('You have now unknown connection', ToastAndroid.LONG)
+          break
+      default:
+          break
+  }
+
+
   }
   render() {
 
