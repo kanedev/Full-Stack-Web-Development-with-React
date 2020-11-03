@@ -1,15 +1,14 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
 const bodyParser = require('body-parser');
-var User = require('../models/user');
-var passport = require('passport');
-var authenticate = require('../authenticate');
+const User = require('../models/user');
+const passport = require('passport');
+const authenticate = require('../authenticate');
 
 
-router.use(bodyParser.json());
+const usersRouter = express.Router();
+usersRouter.use(bodyParser.json());
 
-/* GET users listing. */
-router.route('/')
+usersRouter.route('/')
 .get( authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next)=> {
     User.find({})
         .then((users) =>{
@@ -19,59 +18,50 @@ router.route('/')
         }, (err) => next(err))
         .catch((err) => next(err));
 })
+// USERS/SIGN UP
 
-
-
-// SIGN UP
-router.post('/signup', (req, res, next) => {
-  User.register(new User({username: req.body.username}), 
+usersRouter.post('/signup', (req, res, next) => {
+  User.register(new User({ username: req.body.username }),
     req.body.password, (err, user) => {
-    if(err) {
-      res.statusCode = 500;
-      res.setHeader('Content-Type', 'application/json');
-      res.json({err: err});
-    }
-    else {
-      if (req.body.firstname)
-        user.firstname = req.body.firstname;
-      if (req.body.lastname)
-        user.lastname = req.body.lastname;
-      user.save((err, user) => {
-        if (err) {
-          res.statusCode = 500;
-          res.setHeader('Content-Type', 'application/json');
-          res.json({err: err});
-          return ;
-        }
-        passport.authenticate('local')(req, res, () => {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.json({success: true, status: 'Registration Successful!'});
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ err: err });
+      }
+      else {
+        if (req.body.firstname)
+          user.firstname = req.body.firstname;
+        if (req.body.lastname)
+          user.lastname = req.body.lastname;
+          user.save((err, user) => {
+          if (err) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({ err: err });
+            return;
+          }
+          passport.authenticate('local')(req, res, () => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({ success: true, status: 'Registration Successful!' });
+          });
         });
-      });
-    }
-  });
+      }
+    });
 });
 
-//LOGIN
-router.post('/login', passport.authenticate('local'), (req, res) => {
 
-  // var token = authenticate.getToken({
-  //   _id: req.user._id,
-  //   firstname: req.user.firstname,
-  //   lastname: req.user.lastname
-  // });
+// USERS/LOGIN 
 
+usersRouter.post('/login', passport.authenticate('local'), (req, res) => {
 
-  var token = authenticate.getToken({_id: req.user._id});
+  var token = authenticate.getToken({ _id: req.user._id });//going to create a token by giving a payload, which only contains the ID of the user. So, we'll say id: req.user._id. That is sufficient enough for creating the JsonWebToken. We don't want to include any other of the user's information
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
-  res.json({success: true, token: token, status: 'You are successfully logged in!'});
+  res.json({ success: true, token: token, status: 'You are successfully logged in!' });
 });
 
-// LOGOUT
-
-router.get('/logout', (req, res) => {
+usersRouter.get('/logout', (req, res,next) => {
   if (req.session) {
     req.session.destroy();
     res.clearCookie('session-id');
@@ -84,7 +74,4 @@ router.get('/logout', (req, res) => {
   }
 });
 
-
-
-
-module.exports = router;
+module.exports = usersRouter;
